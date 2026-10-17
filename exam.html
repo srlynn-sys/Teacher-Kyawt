@@ -4,7 +4,12 @@
 </style></head><body><main class="shell"><a class="back" href="./index.html">← Home</a><header class="brand"><img class="logo" src="https://drive.google.com/thumbnail?id=1c9mKGWCBmfebssDBTEcgHmQIZp3OyNKh&sz=w1200" alt="School logo" onerror="this.onerror=null;this.src='https://lh3.googleusercontent.com/d/1c9mKGWCBmfebssDBTEcgHmQIZp3OyNKh';"><h1>Tamar Lann Federal School</h1><p>Teacher Kyawt · Chemistry</p><div class="meta"><span>Grade 10 Chemistry</span><span>50 Questions</span><span>50 Marks · 1 mark each</span></div></header>
 <section class="panel" id="entry"><h2>Grade 10 Chemistry Practice Exam</h2><p class="desc">Answer all 50 multiple-choice questions. Each question carries 1 mark. Choose one answer for each question.</p><div class="field"><label for="examId">Student ID</label><input id="examId" list="allowedIds" placeholder="10CF01 or 10CF02" autocomplete="off"><datalist id="allowedIds"><option value="10CF01"><option value="10CF02"></datalist></div><div class="actions"><button id="startExam" class="btn primary">Start Practice Exam</button><a class="btn secondary" href="./index.html">Back</a></div><div id="status" class="status"></div></section>
 <section class="panel hidden" id="paper"><h2>Grade 10 Chemistry Practice Questions</h2><p class="desc" id="candidate"></p><div id="questions"></div><div class="actions"><button id="submitExam" class="btn primary">Submit Answers & Check Score</button><button id="resetExam" class="btn secondary">Try Again</button></div><div id="score" class="resultbox hidden" aria-live="polite"></div></section><footer class="footer">© Tamar Lann Federal School · Chemistry</footer></main>
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { firebaseConfig } from "./firebase-config.js";
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
 const allowed=new Set(["10CF01","10CF02"]);
 const groups=[
 {title:"Part I: Atomic Structure and the Periodic Table",qs:[
@@ -68,6 +73,63 @@ const all=groups.flatMap(g=>g.qs.map(q=>({question:q[0],options:q[1],answer:q[2]
 const questionRoot=document.getElementById("questions");
 groups.forEach((group,gi)=>{const h=document.createElement("h3");h.className="section";h.textContent=group.title;questionRoot.appendChild(h);group.qs.forEach((q,qi)=>{const n=groups.slice(0,gi).reduce((sum,g)=>sum+g.qs.length,0)+qi;const card=document.createElement("div");card.className="question";const title=document.createElement("div");title.className="qtitle";title.textContent=(n+1)+". "+q[0];card.appendChild(title);const opts=document.createElement("div");opts.className="options";q[1].forEach((option,oi)=>{const label=document.createElement("label");label.className="option";const input=document.createElement("input");input.type="radio";input.name="q"+n;input.value=String(oi);const span=document.createElement("span");span.textContent=String.fromCharCode(65+oi)+") "+option;label.append(input,span);opts.appendChild(label)});card.appendChild(opts);questionRoot.appendChild(card)})});
 document.getElementById("startExam").addEventListener("click",()=>{const id=document.getElementById("examId").value.trim().toUpperCase(),s=document.getElementById("status");s.className="status show";if(!allowed.has(id)){s.classList.add("error");s.textContent="Please enter an allowed student ID: 10CF01 or 10CF02.";return;}document.getElementById("candidate").textContent="Student ID: "+id+" · Total: 50 marks";document.getElementById("entry").classList.add("hidden");document.getElementById("paper").classList.remove("hidden");window.scrollTo({top:0,behavior:"smooth"});});
-document.getElementById("submitExam").addEventListener("click",()=>{try{let score=0,answered=0;all.forEach((q,i)=>{const selected=document.querySelector('input[name="q'+i+'"]:checked');if(selected){answered++;if(Number(selected.value)===q.answer)score++;}});const box=document.getElementById("score");box.replaceChildren();box.classList.remove("hidden");const title=document.createElement("h3");title.textContent="Practice Result";title.style.margin="0 0 10px";box.appendChild(title);const table=document.createElement("table");table.style.cssText="width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden";const rows=[["Student ID",document.getElementById("candidate").textContent.replace("Student ID: ","").split(" · ")[0]],["Score",score+" / 50"],["Percentage",Math.round(score/50*100)+"%"],["Correct answers",String(score)],["Answered",answered+" / 50"],["Unanswered",String(50-answered)]];rows.forEach((r,i)=>{const tr=document.createElement("tr");[r[0],r[1]].forEach((v,j)=>{const td=document.createElement("td");td.textContent=v;td.style.cssText="padding:10px;border:1px solid #d7e9dc;text-align:"+(j?"right":"left");if(j===0)td.style.fontWeight="700";tr.appendChild(td)});table.appendChild(tr)});box.appendChild(table);const answerHeading=document.createElement("h3");answerHeading.textContent="Answer Key";answerHeading.style.margin="18px 0 8px";box.appendChild(answerHeading);const keyTable=document.createElement("table");keyTable.style.cssText="width:100%;border-collapse:collapse;background:#fff";const thead=document.createElement("thead"),hr=document.createElement("tr");["No.","Correct option","Correct answer","Your answer","Result"].forEach(t=>{const th=document.createElement("th");th.textContent=t;th.style.cssText="padding:8px;border:1px solid #d7e9dc;background:#eaf7ef;text-align:left";hr.appendChild(th)});thead.appendChild(hr);keyTable.appendChild(thead);const tbody=document.createElement("tbody");all.forEach((q,i)=>{const selected=document.querySelector('input[name="q'+i+'"]:checked');const your=selected?String.fromCharCode(65+Number(selected.value)):"—";const correct=String.fromCharCode(65+q.answer);const tr=document.createElement("tr");[String(i+1),correct,q.options[q.answer],your,selected?(Number(selected.value)===q.answer?"Correct":"Incorrect"):"Not answered"].forEach((v,j)=>{const td=document.createElement("td");td.textContent=v;td.style.cssText="padding:8px;border:1px solid #d7e9dc;vertical-align:top";tr.appendChild(td)});tbody.appendChild(tr)});keyTable.appendChild(tbody);const wrap=document.createElement("div");wrap.style.cssText="overflow-x:auto;margin-top:8px";wrap.appendChild(keyTable);box.appendChild(wrap);box.scrollIntoView({behavior:"smooth",block:"start"});}catch(err){console.error(err);const box=document.getElementById("score");box.classList.remove("hidden");box.textContent="Could not calculate score. Please refresh the page and try again.";}});
+document.getElementById("submitExam").addEventListener("click",async()=>{
+  const button=document.getElementById("submitExam");
+  button.disabled=true;
+  button.textContent="Saving result…";
+  try {
+    let score=0,answered=0;
+    all.forEach((q,i)=>{
+      const selected=document.querySelector('input[name="q'+i+'"]:checked');
+      if(selected){answered++;if(Number(selected.value)===q.answer)score++;}
+    });
+    const studentId=document.getElementById("candidate").textContent.replace("Student ID: ","").split(" · ")[0];
+    const resultData={
+      studentId,
+      name:"",
+      subject:"Grade 10 Chemistry",
+      examName:"Grade 10 Chemistry Practice Exam",
+      score,
+      total:all.length,
+      percentage:Math.round(score/all.length*100),
+      answered,
+      unanswered:all.length-answered,
+      updatedAt:serverTimestamp()
+    };
+    await setDoc(doc(db,"practiceResults",studentId),resultData);
+    const box=document.getElementById("score");
+    box.replaceChildren();
+    box.classList.remove("hidden");
+    const title=document.createElement("h3");
+    title.textContent="Practice Result";
+    title.style.margin="0 0 10px";
+    box.appendChild(title);
+    const table=document.createElement("table");
+    table.style.cssText="width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden";
+    const rows=[["Student ID",studentId],["Subject","Grade 10 Chemistry"],["Score",score+" / "+all.length],["Percentage",Math.round(score/all.length*100)+"%"],["Answered",answered+" / "+all.length],["Unanswered",String(all.length-answered)],["Save status","Saved to Firebase"]];
+    rows.forEach(r=>{
+      const tr=document.createElement("tr");
+      [r[0],r[1]].forEach((v,j)=>{
+        const td=document.createElement("td");
+        td.textContent=v;
+        td.style.cssText="padding:10px;border:1px solid #d7e9dc;text-align:"+(j?"right":"left");
+        if(j===0)td.style.fontWeight="700";
+        tr.appendChild(td);
+      });
+      table.appendChild(tr);
+    });
+    box.appendChild(table);
+    box.scrollIntoView({behavior:"smooth",block:"start"});
+  } catch(err) {
+    console.error(err);
+    const box=document.getElementById("score");
+    box.replaceChildren();
+    box.classList.remove("hidden");
+    box.textContent="ရမှတ်တွက်ပြီးပါပြီ၊ သို့သော် Firebase မှာ သိမ်းမရပါ။ Firestore Rules ကိုစစ်ပါ။";
+  } finally {
+    button.disabled=false;
+    button.textContent="Submit Answers & Check Score";
+  }
+});
 document.getElementById("resetExam").addEventListener("click",()=>{document.querySelectorAll('#questions input[type="radio"]').forEach(input=>input.checked=false);document.getElementById("score").classList.add("hidden");window.scrollTo({top:0,behavior:"smooth"});});
 </script></body></html>
