@@ -1,13 +1,15 @@
-// Firebase Console > Project settings > Your apps > Web app config မှ တန်ဖိုးများကို ထည့်ပါ.
-// ဤဖိုင်တွင် Firebase web config သာထည့်ပါ။ Service account private key မထည့်ရပါ။
+// Firebase Web App configuration for the Teacher-Kyawt project.
+// Do not put Firebase service-account private keys in this browser-side file.
 export const firebaseConfig = {
-  apiKey: "PASTE_YOUR_FIREBASE_API_KEY_HERE",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.firebasestorage.app",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_FIREBASE_APP_ID"
+  apiKey: "AIzaSyD5yXkAG8i_UOCsR2ERzoGbURNTvIVAYYw",
+  authDomain: "teacher-kyawt.firebaseapp.com",
+  projectId: "teacher-kyawt",
+  storageBucket: "teacher-kyawt.firebasestorage.app",
+  messagingSenderId: "78047639562",
+  appId: "1:78047639562:web:ae08a0eb3c6cf9139687f3",
+  measurementId: "G-NVG4SP52TG"
 };
 
-// Firebase Authentication ထဲတွင် ဖန်တီးမည့် Admin email နှင့် အောက်ပါ Firestore Rules ထဲက email ကို တူညီအောင်ထားပါ။
-export const ADMIN_EMAIL = "REPLACE_WITH_ADMIN_EMAIL";
+// Must match the admin account created in Firebase Authentication
+// and the email configured in firestore.rules.
+export const ADMIN_EMAIL = "thitlinn680@gmail.com";
