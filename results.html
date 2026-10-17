@@ -24,11 +24,11 @@ async function loadResults(){
   const wrap=document.createElement("div");wrap.className="result-table-wrap";
   const table=document.createElement("table");table.className="result-table";
   const thead=document.createElement("thead"),head=document.createElement("tr");
-  ["စဉ်","ကျောင်းသား ID","အမည်","ဘာသာရပ်","ရမှတ်","ရာခိုင်နှုန်း","ဖြေဆိုပြီး","မဖြေဆို","ရလဒ်အမျိုးအစား"].forEach(v=>{const th=document.createElement("th");th.textContent=v;head.append(th);});
+  ["စဉ်","Code","ရမှတ်","%"].forEach(v=>{const th=document.createElement("th");th.textContent=v;head.append(th);});
   thead.append(head);const tbody=document.createElement("tbody");
   records.forEach((r,i)=>{
    const d=r.data||{},tr=document.createElement("tr");
-   const values=[i+1,r.id,d.name||d.studentName||"—",d.subject||"Grade 10 Chemistry",r.data?(String(d.score??"—")+" / "+String(d.total??50)):"—",r.data?(String(d.percentage??(Number(d.score??0)/Number(d.total||50)*100))+"%"):"—",d.answered??"—",d.unanswered??"—",r.source];
+   const values=[i+1,r.id,r.data?(String(d.score??"—")+" / "+String(d.total??50)):"—",r.data?(String(d.percentage??(Number(d.score??0)/Number(d.total||50)*100))+"%"):"—"];
    values.forEach((v,j)=>{const td=document.createElement("td");td.textContent=String(v);tr.append(td);});
    tbody.append(tr);
   });
